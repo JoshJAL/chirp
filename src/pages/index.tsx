@@ -1,14 +1,12 @@
+import { SignInButton, SignOutButton, useUser } from '@clerk/nextjs';
 import { type NextPage } from 'next';
 import Head from 'next/head';
-import Link from 'next/link';
-import { SignIn, SignInButton, useUser, SignOutButton } from '@clerk/nextjs';
 
 import { api } from '@/utils/api';
 
 const Home: NextPage = () => {
-  const hello = api.example.hello.useQuery({ text: 'from tRPC' });
-
   const user = useUser();
+  const { data } = api.posts.getAll.useQuery();
 
   return (
     <>
@@ -18,11 +16,15 @@ const Home: NextPage = () => {
         <link rel='icon' href='/favicon.ico' />
       </Head>
       <main className='flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]'>
-        <div>
+        <div className='rounded-lg bg-green-500 px-4 py-2 font-semibold transition-all duration-150 ease-in-out hover:bg-green-600'>
           {!user.isSignedIn && <SignInButton />}
           {user.isSignedIn && <SignOutButton />}
         </div>
-        <SignIn path='/sign-in' routing='path' signUpUrl='/sign-up' />
+        <div>
+          {data?.map((post) => (
+            <div key={post.id}>{post.content}</div>
+          ))}
+        </div>
       </main>
     </>
   );
