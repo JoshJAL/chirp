@@ -8,6 +8,7 @@ import Image from 'next/image';
 dayjs.extend(relativeTime);
 
 import { RouterOutputs, api } from '@/utils/api';
+import { LoadingPage } from '@/components/loadingSpinner/LoadingSpinner';
 
 const CreatePostWizard = () => {
   const { user } = useUser();
@@ -33,11 +34,11 @@ const PostView = (props: PostWithUser) => {
         height={56}
         src={author.profileImageUrl}
         className='h-14 w-14 rounded-full'
-        alt={`@${author.username}'s profile picture`}
+        alt={`@${author.username as string}'s profile picture`}
       />
       <div className='flex flex-col'>
         <div className='flex gap-1 text-slate-300'>
-          <span>{`@${author.username}`}</span>
+          <span>{`@${author.username as string}`}</span>
           <span className='font-thin'> · </span>
           <span className='font-thin'>{dayjs(post.createdAt).fromNow()}</span>
         </div>
@@ -51,7 +52,7 @@ const Home: NextPage = () => {
   const user = useUser();
   const { data, isLoading } = api.posts.getAll.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <LoadingPage />;
 
   if (!data) return <div>Something went wrong</div>;
 
