@@ -9,16 +9,36 @@ dayjs.extend(relativeTime);
 
 import { LoadingPage } from '@/components/loadingSpinner/LoadingSpinner';
 import { RouterOutputs, api } from '@/utils/api';
+import { useState } from 'react';
 
 const CreatePostWizard = () => {
   const { user } = useUser();
+  const [input, setInput] = useState('');
+
+  const ctx = api.useContext();
+
+  const { mutate, isLoading: isPosting } = api.posts.create.useMutation({
+    onSuccess: () => {
+      {
+        setInput('');
+        void ctx.posts.getAll.invalidate();
+      }
+    }
+  });
 
   if (!user) return null;
 
   return (
     <div className='flex w-full gap-3'>
       <Image width={56} height={56} src={user.profileImageUrl} alt='Profile image' className='h-14 w-14 rounded-full' />
-      <input placeholder='Type some emojis!' className='grow bg-transparent outline-none' />
+      <input
+        placeholder='Type some emojis!'
+        className='grow bg-transparent outline-none'
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
+        disabled={isPosting}
+      />
+      <button onClick={() => mutate({ content: input })}>Post</button>
     </div>
   );
 };
@@ -34,15 +54,15 @@ const PostView = (props: PostWithUser) => {
         height={56}
         src={author.profileImageUrl}
         className='h-14 w-14 rounded-full'
-        alt={`@${author.username as string}'s profile picture`}
+        alt={`@${author.username}'s profile picture`}
       />
       <div className='flex flex-col'>
         <div className='flex gap-1 text-slate-300'>
-          <span>{`@${author.username as string}`}</span>
+          <span>{`@${author.username}`}</span>
           <span className='font-thin'> · </span>
           <span className='font-thin'>{dayjs(post.createdAt).fromNow()}</span>
         </div>
-        <span>{post.content}</span>
+        <span className='text-2xl'>{post.content}</span>
       </div>
     </div>
   );
